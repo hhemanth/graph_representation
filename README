@@ -11,10 +11,10 @@ inside the directory jiffle_now_task
 rspec spec/
 
 I have the following classes
--Node
--Edge
--Graph
--Gtree
+*Node
+*Edge
+*Graph
+*Gtree
 
 Node has a nodename (which is a single Alphabet)
 Edge has 2 Nodes and one field dist which stores distance.
