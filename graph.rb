@@ -107,68 +107,22 @@ class Graph
     return bfs(point1,point2, max_dist,p1,p2)
   end
 
-
-  def bfs(start_node,end_node,max_stops,proc1,proc2)
-    node_and_route = {}
-    node_and_route[:node] = start_node
-    node_and_route[:route] = [start_node]
-    node_and_route[:dist] = 0
-    queue = [node_and_route]
-    routes = [[start_node]]
-    cur_route = routes.first
-    all_routes = []
-
-    while(!queue.empty?)
-      cur_nr = queue.shift()
-      #edges = @adj_list[cur_nr[:node]]
-      tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
-      r = cur_nr[:route]
-
-      tree.edges_arr.each do |edge_child|
-           child = edge_child.node_dst_name
-           nr = {}
-           nr[:node] = child
-           r1 = Array.new(r)
-           nr[:route] = r1.push(child)
-           nr[:dist] = cur_nr[:dist] + edge_child.dist
-           if ( proc1.call(nr))
-            all_routes << nr[:route]
-           end
-           if ( proc2.call(nr))
-            queue.push(nr)
-           end
-      end
-
-    end
-        return all_routes
-  end
-
-
   def bfs_shortest_route(start_node,end_node, max_dist)
-    node_and_route = {}
-    node_and_route[:node] = start_node
-    node_and_route[:route] = [start_node]
-    node_and_route[:dist] = 0
+    node_and_route = init_node_and_route(start_node)
     queue = [node_and_route]
-
     routes = [[start_node]]
     cur_route = routes.first
     all_routes = []
     shortest_route = nil
     shortest_dist = max_dist
+
     while(!queue.empty? )
       cur_nr = queue.shift()
-      #edges = @adj_list[cur_nr[:node]]
       tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
       r = cur_nr[:route]
-      tree.edges_arr.each do |edge_child|
-           child = edge_child.node_dst.node_name
-           nr = {}
-           nr[:node] = child
-           r1 = Array.new(r)
-           nr[:route] = r1.push(child)
-           nr[:dist] = cur_nr[:dist] + edge_child.dist
 
+      tree.edges_arr.each do |edge_child|
+           nr = get_next_nr(edge_child,cur_nr,r)
            if (nr[:route].last == end_node)
             all_routes << nr[:route]
             shortest_route = nr if nr[:dist] < shortest_dist
@@ -181,6 +135,54 @@ class Graph
 
     return shortest_route
   end
+
+  def bfs(start_node,end_node,max_stops,proc1,proc2)
+    node_and_route = init_node_and_route(start_node)
+    queue = [node_and_route]
+    routes = [[start_node]]
+    cur_route = routes.first
+    all_routes = []
+
+    while(!queue.empty?)
+      cur_nr = queue.shift()
+      tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
+      r = cur_nr[:route]
+
+      tree.edges_arr.each do |edge_child|
+         child = edge_child.node_dst_name
+         nr = get_next_nr(edge_child,cur_nr,r)
+         all_routes << nr[:route] if ( proc1.call(nr))
+         queue.push(nr) if ( proc2.call(nr))
+      end
+
+    end
+
+    return all_routes
+  end
+
+
+
+  private
+  def init_node_and_route(start_node)
+    node_and_route = {}
+    node_and_route[:node] = start_node
+    node_and_route[:route] = [start_node]
+    node_and_route[:dist] = 0
+    return node_and_route
+  end
+
+  def get_next_nr(edge, cur_nr,route)
+    child = edge.node_dst_name
+    nr = {}
+    nr[:node] = child
+    r1 = Array.new(route)
+    nr[:route] = r1.push(child)
+    nr[:dist] = cur_nr[:dist] + edge.dist
+    return nr
+  end
+
+
+
 
 end
 
