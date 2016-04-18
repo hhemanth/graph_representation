@@ -71,6 +71,43 @@ class Graph
     return route_dist
   end
 
+  def trips_from_P1_to_P2_max_N_stops(point1,point2,max_stops)
+    p1 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      (route_arr.size <= (max_stops+1)) && (route_arr.last == point2)
+    end
+    p2 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      route_arr.size <= (max_stops+1)
+    end
+    return bfs(point1,point2, max_stops,p1,p2)
+  end
+
+  def trips_from_P1_to_P2_exact_N_stops(point1,point2,max_stops)
+    p1 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      (route_arr.size == (max_stops+1)) && (route_arr.last == point2)
+    end
+    p2 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      route_arr.size <= (max_stops+1)
+    end
+    return bfs(point1,point2, max_stops,p1,p2)
+  end
+
+  def trips_from_P1_to_P2_max_distance(point1,point2,max_dist)
+    p1 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      (route_hash[:dist] < max_dist) && (route_arr.last == point2)
+     end
+    p2 = Proc.new do |route_hash|
+      route_arr = route_hash[:route]
+      route_hash[:dist] < max_dist
+     end
+    return bfs(point1,point2, max_dist,p1,p2)
+  end
+
+
   def bfs(start_node,end_node,max_stops,proc1,proc2)
     node_and_route = {}
     node_and_route[:node] = start_node

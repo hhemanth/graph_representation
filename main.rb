@@ -31,29 +31,13 @@ puts "6) The number of trips starting at C and ending at C with a maximum of 3 s
 point1 = "C"
 point2 = "C"
 max_stops = 3
-p1 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      (route_arr.size <= (max_stops+1)) && (route_arr.last == point2)
-    end
-p2 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      route_arr.size <= (max_stops+1)
-    end
-puts graph.bfs(point1,point2, max_stops,p1,p2).size
+puts graph.trips_from_P1_to_P2_max_N_stops(point1,point2, max_stops).size
 
 puts "7) The number of trips starting at A and ending at C with exactly 4 stops"
 point1 = "A"
 point2 = "C"
 max_stops = 4
-p1 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      (route_arr.size == (max_stops+1)) && (route_arr.last == point2)
-    end
-p2 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      route_arr.size <= (max_stops+1)
-    end
-puts graph.bfs(point1,point2, max_stops,p1,p2).size
+puts graph.trips_from_P1_to_P2_exact_N_stops(point1,point2, max_stops).size
 
 puts "8) The length of the shortest route (in terms of distance to travel) from A to C"
 point1 = "A"
@@ -62,7 +46,6 @@ max_dist = 1000
 puts graph.bfs_shortest_route(point1,point2, max_dist)[:dist]
 
 puts "9)The length of the shortest route (in terms of distance to travel) from B to B."
-
 point1 = "B"
 point2 = "B"
 max_dist = 1000
@@ -72,14 +55,6 @@ puts "10) The number of different routes from C to C with a distance of less tha
 point1 = "C"
 point2 = "C"
 max_dist = 30
-p1 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      (route_hash[:dist] < max_dist) && (route_arr.last == point2)
-     end
-p2 = Proc.new do |route_hash|
-      route_arr = route_hash[:route]
-      route_hash[:dist] < max_dist
-     end
-puts graph.bfs(point1,point2, max_dist,p1,p2).size
+puts graph.trips_from_P1_to_P2_max_distance(point1,point2, max_dist).size
 
 
