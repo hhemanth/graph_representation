@@ -76,7 +76,7 @@ describe Graph do
           route_arr = route_hash[:route]
           route_arr.size <= (max_stops+1)
         end
-    puts @graph.bfs(point1,point2, max_stops,p1,p2).to_s
+    expect(@graph.bfs(point1,point2, max_stops,p1,p2).size).to eq(2)
    end
 
   it "No of trips starting from point1 to point2 with exactly n stops" do
@@ -91,7 +91,7 @@ describe Graph do
           route_arr = route_hash[:route]
           route_arr.size <= (max_stops+1)
         end
-    puts @graph.bfs(point1,point2, max_stops,p1,p2).to_s
+    expect(@graph.bfs(point1,point2, max_stops,p1,p2).size).to eq(3)
    end
 
   it "The number of different routes from Point1 to Point2 with a distance of less than
@@ -107,21 +107,106 @@ max_dist" do
           route_arr = route_hash[:route]
           route_hash[:dist] < max_dist
          end
-    puts @graph.bfs(point1,point2, max_dist,p1,p2).to_s
+    expect(@graph.bfs(point1,point2, max_dist,p1,p2).size).to eq(7)
    end
 
    it "The length of the shortest route (in terms of distance to travel) from point1 to point2t" do
     point1 = "A"
     point2 = "C"
     max_dist = 1000
-    puts @graph.bfs_shortest_route(point1,point2, max_dist).to_s
+    expect(@graph.bfs_shortest_route(point1,point2, max_dist)[:dist]).to eq(9)
    end
 
    it "The length of the shortest route (in terms of distance to travel) from point1 to point2t" do
     point1 = "B"
     point2 = "B"
     max_dist = 1000
-    puts @graph.bfs_shortest_route(point1,point2, max_dist).to_s
+    expect(@graph.bfs_shortest_route(point1,point2, max_dist)[:dist]).to eq(9)
+  end
+
+  it "bfs recursive Q6" do
+    queue = [{:node => "C", :route => "C"}]
+    output = []
+
+    point1 = "C"
+    point2 = "C"
+    max_stops = 3
+    p1 = Proc.new do |route_hash|
+          route_arr = route_hash[:route]
+          (route_arr.size <= (max_stops+1)) && (route_hash[:node] == point2)
+        end
+    p2 = Proc.new do |route_hash|
+          route_arr = route_hash[:route]
+          route_arr.size <= (max_stops+1)
+        end
+    p3 = Proc.new do |output, route|
+           output<<route
+         end
+    expect(@graph.bfs_recursive(queue, output,p1,p2,p3).size).to eq(2)
+  end
+
+  it "bfs recursive Q7" do
+    queue = [{:node => "A", :route => "A"}]
+    output = []
+
+    point1 = "A"
+    point2 = "C"
+    max_stops = 4
+    p1 = Proc.new do |route_hash|
+          route_arr = route_hash[:route]
+          (route_arr.size == (max_stops+1)) && (route_hash[:node] == point2)
+        end
+    p2 = Proc.new do |route_hash|
+          route_arr = route_hash[:route]
+          route_arr.size <= (max_stops+1)
+        end
+     p3 = Proc.new do |output, route|
+           output<<route
+          end
+
+    expect(@graph.bfs_recursive(queue, output,p1,p2,p3).size).to eq(3)
+  end
+
+  it "bfs recursive Q8" do
+    queue = [{:node => "B", :route => "B"}]
+    output = []
+
+    point1 = "B"
+    point2 = "B"
+    max_dist = 1000
+    p1 = Proc.new do |route_hash,dist|
+          route_arr = route_hash[:route]
+          (dist < max_dist) && (route_hash[:node] == point2)
+         end
+    p2 = Proc.new do |route_hash,dist|
+          route_arr = route_hash[:route]
+          dist < max_dist
+         end
+     p3 = Proc.new do |output, route|
+           output<<route
+          end
+    # puts @graph.bfs_recursive(queue, output,p1,p2,p3).to_s
+  end
+
+  it "bfs recursive Q10" do
+    queue = [{:node => "C", :route => "C"}]
+    output = []
+
+    point1 = "C"
+    point2 = "C"
+    max_dist = 30
+    p1 = Proc.new do |route_hash,dist|
+          route_arr = route_hash[:route]
+          (dist < max_dist) && (route_hash[:node] == point2)
+         end
+    p2 = Proc.new do |route_hash,dist|
+          route_arr = route_hash[:route]
+          dist < max_dist
+         end
+     p3 = Proc.new do |output, route|
+           output<<route
+          end
+    expect(@graph.bfs_recursive(queue, output,p1,p2,p3).size).to eq(7)
   end
 
 

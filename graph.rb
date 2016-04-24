@@ -1,6 +1,6 @@
 
 class Graph
-  attr_accessor :edges_arr, :trees
+  attr_accessor :edges_arr, :trees, :adj_list
 
   def initialize(str)
     @edges_arr = []
@@ -9,6 +9,7 @@ class Graph
     # build_adj_list
     @trees= []
     build_trees
+    build_adj_list
   end
 
   def to_s
@@ -31,15 +32,13 @@ class Graph
      puts ""
   end
 
-  # def build_adj_list
-  #   @adj_list = {}
-  #   @edges_arr.each do |edge|
-  #     if @adj_list[edge.node_src.node_name].nil?
-  #       @adj_list[edge.node_src.node_name] = []
-  #     end
-  #     @adj_list[edge.node_src.node_name] << edge
-  #   end
-  # end
+  def build_adj_list
+    @adj_list = {}
+    grouped_edges = @edges_arr.group_by{|e| e.node_src_name}
+    grouped_edges.keys.each do |src_node|
+      @adj_list[src_node] = grouped_edges[src_node]
+    end
+  end
 
   def build_trees
     grouped_edges = @edges_arr.group_by{|e| e.node_src_name}
@@ -118,10 +117,11 @@ class Graph
 
     while(!queue.empty? )
       cur_nr = queue.shift()
-      tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
+      # tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
+      edges_arr = @adj_list[cur_nr[:node]]
       r = cur_nr[:route]
 
-      tree.edges_arr.each do |edge_child|
+      edges_arr.each do |edge_child|
            nr = get_next_nr(edge_child,cur_nr,r)
            if (nr[:route].last == end_node)
             all_routes << nr[:route]
@@ -136,6 +136,30 @@ class Graph
     return shortest_route
   end
 
+    def bfs_recursive(queue, output,proc1,proc2,proc3)
+      return output if queue.empty?
+      cur = queue.shift()
+      cur_node = cur[:node]
+      cur_route = cur[:route]
+
+      @adj_list[cur_node].each do |edge_child|
+
+          next_node_route = {}
+          next_node_route[:node] = edge_child.node_dst_name
+          next_node_route[:route] = "#{cur_route}#{edge_child.node_dst_name}"
+          dist = calc_route_dist(next_node_route[:route])
+
+          output = proc1.call(next_node_route, dist ) ?  proc3.call(output,next_node_route[:route]): output
+
+          queue.push(next_node_route) if ( proc2.call(next_node_route, dist))
+
+      end
+
+      return bfs_recursive(queue,output,proc1,proc2,proc3)
+    end
+
+
+
   def bfs(start_node,end_node,max_stops,proc1,proc2)
     node_and_route = init_node_and_route(start_node)
     queue = [node_and_route]
@@ -145,10 +169,11 @@ class Graph
 
     while(!queue.empty?)
       cur_nr = queue.shift()
-      tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
+      # tree = @trees.select{|t| t.is_src_node?(cur_nr[:node])}.first
+      edges_arr = @adj_list[cur_nr[:node]]
       r = cur_nr[:route]
 
-      tree.edges_arr.each do |edge_child|
+      edges_arr.each do |edge_child|
          child = edge_child.node_dst_name
          nr = get_next_nr(edge_child,cur_nr,r)
          all_routes << nr[:route] if ( proc1.call(nr))
